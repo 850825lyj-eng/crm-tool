@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>修修图·客维宝 | 私域客户关系管理</title>
+  <meta name="description" content="修修图·客维宝，个体电商卖家的轻量CRM工具。客户档案、购买记录、智能标签、复购提醒，数据存本地，零上传。">
+  <style>
+    /* ========== Fonts ========== */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      --bg: #1A1A1A;
+      --surface: rgba(22, 22, 30, 0.75);
+      --surface-hover: rgba(28, 28, 36, 0.85);
+      --border: rgba(255, 255, 255, 0.10);
+      --border-active: rgba(255, 255, 255, 0.22);
+      --text-primary: #EDE8E0;
+      --text-secondary: #A09B92;
+      --text-muted: #6B6560;
+      --amber: #B86B2C;
+      --amber-glow: rgba(184, 107, 44, 0.25);
+      --ice: #5BA4B8;
+      --ice-glow: rgba(91, 164, 184, 0.25);
+      --danger: #C44B4B;
+      --success: #5B8C5B;
+      --font-display: 'Clash Display', 'Georgia', 'Times New Roman', serif;
+      --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+      --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      --radius: 4px;
+      --blur: 24px;
+    }
+    body.light {
+      --bg: #F5F4F0;
+      --surface: rgba(255, 255, 255, 0.75);
+      --surface-hover: rgba(245, 245, 245, 0.9);
+      --border: rgba(0, 0, 0, 0.10);
+      --border-active: rgba(0, 0, 0, 0.22);
+      --text-primary: #1A1A1A;
+      --text-secondary: #5A5550;
+      --text-muted: #8A8580;
+    }
+
+    /* ========== Reset ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 0 16px 40px;
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.3s, color 0.3s;
+      position: relative;
+    }
+    /* 胶片噪点纹理 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container { max-width: 1340px; margin: 0 auto; padding: 24px 0; position: relative; z-index: 1; }
+
+    /* ========== 导航栏 ========== */
+    .navbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 14px 20px; margin-bottom: 24px;
+      background: var(--surface); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      position: sticky; top: 16px; z-index: 20; flex-wrap: wrap;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-display); font-size: 1.3rem; font-weight: 700;
+      letter-spacing: -0.3px; color: var(--text-primary);
+    }
+    .brand-mono {
+      font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500;
+      color: var(--amber); text-transform: uppercase; letter-spacing: 2px;
+      background: var(--amber-glow); padding: 2px 8px; border-radius: 2px;
+      border: 1px solid rgba(184, 107, 44, 0.3);
+    }
+    .nav-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .search-input {
+      padding: 8px 12px; border-radius: var(--radius); border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2); color: var(--text-primary);
+      font-family: var(--font-mono); font-size: 0.78rem; width: 180px; transition: 0.2s;
+    }
+    .search-input:focus { outline: none; border-color: var(--amber); }
+    .search-input::placeholder { color: var(--text-muted); }
+    .btn-icon {
+      width: 36px; height: 36px; border-radius: var(--radius); border: 1px solid var(--border);
+      background: transparent; cursor: pointer; font-size: 1rem; display: flex;
+      align-items: center; justify-content: center; color: var(--text-secondary); transition: 0.2s;
+    }
+    .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* ========== Bento 统计卡片 ========== */
+    .bento-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-bottom: 1px; }
+    @media (max-width: 900px) { .bento-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .bento-row { grid-template-columns: 1fr; } }
+    .stat-card {
+      background: var(--surface); backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 18px; position: relative; overflow: hidden;
+      transition: 0.25s; cursor: default;
+    }
+    /* 悬停：反光位移 */
+    .stat-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.04) 0%, transparent 60%);
+      transition: 0.4s ease;
+      pointer-events: none;
+    }
+    .stat-card:hover::after {
+      background: radial-gradient(circle at 70% 70%, rgba(255,255,255,0.06) 0%, transparent 60%);
+    }
+    .stat-label {
+      font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-family: var(--font-display); font-size: 2rem; font-weight: 700;
+      letter-spacing: -1px; line-height: 1;
+    }
+    .stat-value.amber { color: var(--amber); }
+    .stat-value.ice { color: var(--ice); }
+    .stat-sub {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ========== 主内容双栏 ========== */
+    .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 1px; min-height: 60vh; }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+    /* 客户列表 */
+    .list-panel {
+      background: var(--surface); backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .list-header {
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      font-family: var(--font-display); font-size: 0.95rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .list-body { flex: 1; overflow-y: auto; }
+    .customer-row {
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+      border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.15s;
+    }
+    .customer-row:hover { background: var(--surface-hover); border-color: var(--border-active); }
+    .customer-row.active { border-left: 2px solid var(--amber); background: rgba(184,107,44,0.06); }
+    .customer-avatar {
+      width: 32px; height: 32px; border-radius: 2px; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600;
+      background: rgba(255,255,255,0.04); flex-shrink: 0;
+    }
+    .customer-info { flex: 1; min-width: 0; }
+    .customer-name {
+      font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .customer-meta {
+      font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .customer-tags { display: flex; gap: 4px; flex-shrink: 0; }
+    .tag {
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600;
+      padding: 1px 6px; border-radius: 2px; border: 1px solid var(--border);
+      text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+    }
+    .tag-amber { color: var(--amber); border-color: rgba(184,107,44,0.3); background: rgba(184,107,44,0.08); }
+    .tag-ice { color: var(--ice); border-color: rgba(91,164,184,0.3); background: rgba(91,164,184,0.08); }
+    .tag-danger { color: var(--danger); border-color: rgba(196,75,75,0.3); background: rgba(196,75,75,0.08); }
+    .tag-neutral { color: var(--text-secondary); }
+
+    /* 客户详情面板 */
+    .detail-panel {
+      background: var(--surface); backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; display: flex; flex-direction: column; gap: 16px;
+      overflow-y: auto; position: relative;
+    }
+    .detail-empty {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: var(--text-muted);
+      font-family: var(--font-mono); font-size: 0.8rem;
+    }
+    .detail-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .detail-name {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px;
+    }
+    .detail-actions { display: flex; gap: 6px; }
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      font-family: var(--font-mono); font-size: 0.75rem;
+    }
+    .info-item { display: flex; flex-direction: column; gap: 2px; }
+    .info-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.6rem; }
+    .info-value { color: var(--text-primary); font-weight: 500; }
+    .purchase-list { display: flex; flex-direction: column; gap: 6px; }
+    .purchase-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius);
+      font-family: var(--font-mono); font-size: 0.73rem; transition: 0.15s;
+    }
+    .purchase-row:hover { border-color: var(--border-active); background: var(--surface-hover); }
+    .purchase-date { color: var(--text-muted); }
+    .purchase-amount { font-weight: 600; }
+
+    /* ========== 按钮 ========== */
+    .btn {
+      padding: 8px 16px; border-radius: var(--radius); font-family: var(--font-mono);
+      font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+      border: 1px solid var(--border); background: transparent; color: var(--text-primary);
+      text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+    }
+    .btn:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-amber { border-color: var(--amber); color: var(--amber); }
+    .btn-amber:hover { background: var(--amber); color: #1A1A1A; }
+    .btn-ice { border-color: var(--ice); color: var(--ice); }
+    .btn-ice:hover { background: var(--ice); color: #1A1A1A; }
+    .btn-danger { border-color: var(--danger); color: var(--danger); font-size: 0.65rem; padding: 4px 10px; }
+    .btn-danger:hover { background: var(--danger); color: white; }
+
+    /* ========== 弹窗 ========== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--surface); backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; width: 90%; max-width: 480px; display: flex; flex-direction: column; gap: 14px;
+      max-height: 85vh; overflow-y: auto;
+    }
+    .modal h3 {
+      font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px;
+    }
+    .form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .form-row input, .form-row select {
+      flex: 1; min-width: 80px; padding: 10px 12px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: var(--text-primary);
+      font-family: var(--font-mono); font-size: 0.8rem; transition: 0.2s;
+    }
+    .form-row input:focus, .form-row select:focus {
+      outline: none; border-color: var(--amber);
+    }
+    .form-row input::placeholder { color: var(--text-muted); }
+    .tag-select { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag-chip {
+      padding: 4px 10px; border-radius: 2px; border: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: 0.65rem; cursor: pointer; transition: 0.15s;
+      text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
+    }
+    .tag-chip.selected { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+
+    /* ========== Toast ========== */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--surface); border: 1px solid var(--amber);
+      color: var(--amber); padding: 10px 20px; border-radius: var(--radius);
+      font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+      z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .toast.show { opacity: 1; }
+    .footer {
+      text-align: center; margin-top: 32px; padding: 16px 0;
+      color: var(--text-muted); font-size: 0.7rem; font-family: var(--font-mono);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="brand">
+      <span>修修图·客维宝</span>
+      <span class="brand-mono">CRM</span>
+    </div>
+    <div class="nav-actions">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索客户 / 标签..." oninput="render()">
+      <button class="btn-icon" id="themeToggle" title="切换浅色模式">◐</button>
+      <button class="btn btn-amber" onclick="openAddCustomerModal()">+ 添加客户</button>
+      <button class="btn" onclick="loadDemo()">↺ 示例</button>
+      <button class="btn" onclick="exportCSV()">↗ 导出</button>
+    </div>
+  </nav>
+
+  <!-- Bento 统计 -->
+  <div class="bento-row">
+    <div class="stat-card">
+      <div class="stat-label">需跟进</div>
+      <div class="stat-value amber" id="statFollowUp">0</div>
+      <div class="stat-sub">距上次购买 &gt; 30天</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">已流失</div>
+      <div class="stat-value ice" id="statLost">0</div>
+      <div class="stat-sub">距上次购买 &gt; 90天</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">本月新增</div>
+      <div class="stat-value" id="statNew">0</div>
+      <div class="stat-sub" id="statNewMonth"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">VIP 客户</div>
+      <div class="stat-value amber" id="statVIP">0</div>
+      <div class="stat-sub">累计消费 ≥ ¥500</div>
+    </div>
+  </div>
+
+  <!-- 主内容 -->
+  <div class="main-grid">
+    <!-- 客户列表 -->
+    <div class="list-panel">
+      <div class="list-header">
+        <span>客户列表</span>
+        <span class="stat-sub" id="listCount">0</span>
+      </div>
+      <div class="list-body" id="customerList"></div>
+    </div>
+
+    <!-- 客户详情 -->
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-empty">← 选择客户查看详情</div>
+    </div>
+  </div>
+
+  <div class="footer">© 2025 修修图 Xiuxiutu · 数据存于浏览器本地，不上传 · 触觉野兽 × 液态玻璃</div>
+</div>
+
+<!-- 添加/编辑客户弹窗 -->
+<div class="modal-overlay" id="customerModal">
+  <div class="modal">
+    <h3 id="customerModalTitle">添加客户</h3>
+    <div class="form-row">
+      <input type="text" id="cName" placeholder="姓名 / 昵称" style="flex:2;">
+    </div>
+    <div class="form-row">
+      <input type="text" id="cWechat" placeholder="微信号（选填）">
+      <input type="text" id="cPhone" placeholder="手机号（选填）">
+    </div>
+    <div class="form-row">
+      <input type="text" id="cNote" placeholder="备注（选填）" style="flex:2;">
+    </div>
+    <div class="tag-select" id="tagSelect"></div>
+    <div class="form-row">
+      <button class="btn btn-amber" onclick="saveCustomer()">保存</button>
+      <button class="btn" onclick="closeModal('customerModal')">取消</button>
+    </div>
+    <input type="hidden" id="cId">
+  </div>
+</div>
+
+<!-- 添加购买记录弹窗 -->
+<div class="modal-overlay" id="purchaseModal">
+  <div class="modal">
+    <h3>添加购买记录</h3>
+    <div class="form-row">
+      <input type="text" id="pProduct" placeholder="购买商品（选填）">
+    </div>
+    <div class="form-row">
+      <input type="number" id="pAmount" placeholder="金额(¥)" step="0.01" min="0">
+      <input type="date" id="pDate">
+      <select id="pPlatform">
+        <option value="淘宝">淘宝</option><option value="拼多多">拼多多</option>
+        <option value="抖店">抖店</option><option value="小红书">小红书</option>
+        <option value="微信">微信</option><option value="其他">其他</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <input type="text" id="pNote" placeholder="备注（选填）">
+    </div>
+    <div class="form-row">
+      <button class="btn btn-amber" onclick="savePurchase()">保存</button>
+      <button class="btn" onclick="closeModal('purchaseModal')">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ========== Theme ==========
+  (function() {
+    const btn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('crm_theme');
+    if (saved === 'light') { document.body.classList.add('light'); btn.textContent = '◑'; }
+    btn.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      const isLight = document.body.classList.contains('light');
+      btn.textContent = isLight ? '◑' : '◐';
+      localStorage.setItem('crm_theme', isLight ? 'light' : 'dark');
+    });
+  })();
+
+  // ========== Data ==========
+  const DATA_KEY = 'crm_data';
+  function getData() {
+    try { const d = JSON.parse(localStorage.getItem(DATA_KEY)); return d && d.customers ? d : { customers: [] }; }
+    catch { return { customers: [] }; }
+  }
+  function saveData(data) { localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
+  function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  // ========== Tag System ==========
+  const ALL_TAGS = ['VIP', '老客', '需跟进', '已流失', '批发', '新客'];
+  const TAG_COLORS = {
+    'VIP': 'tag-amber', '老客': 'tag-ice', '需跟进': 'tag-amber',
+    '已流失': 'tag-danger', '批发': 'tag-neutral', '新客': 'tag-ice'
+  };
+
+  function computeTags(customer) {
+    const now = Date.now();
+    const purchases = customer.purchases || [];
+    const totalSpent = purchases.reduce((s, p) => s + (p.amount || 0), 0);
+    const count = purchases.length;
+    const lastPurchase = purchases.length > 0
+      ? Math.max(...purchases.map(p => new Date(p.date).getTime()))
+      : null;
+    const daysSinceLast = lastPurchase ? Math.floor((now - lastPurchase) / (1000 * 60 * 60 * 24)) : Infinity;
+
+    const tags = new Set(customer.manualTags || []);
+    // 自动标签
+    if (totalSpent >= 500 || count >= 5) tags.add('VIP');
+    if (count >= 2 && count < 5) tags.add('老客');
+    if (daysSinceLast > 30 && daysSinceLast <= 90) tags.add('需跟进');
+    if (daysSinceLast > 90) tags.add('已流失');
+    if (count === 1) tags.add('新客');
+    // 移除冲突标签
+    if (tags.has('VIP')) { tags.delete('老客'); tags.delete('新客'); }
+    if (tags.has('已流失')) tags.delete('需跟进');
+    if (tags.has('新客') && count > 1) tags.delete('新客');
+    return Array.from(tags);
+  }
+
+  // ========== Toast ==========
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ========== Modal ==========
+  function openModal(id) { document.getElementById(id).classList.add('active'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+  // ========== Tag Chips (弹窗内) ==========
+  function renderTagChips(selected) {
+    const container = document.getElementById('tagSelect');
+    container.innerHTML = ALL_TAGS.map(t => {
+      const sel = selected && selected.includes(t) ? ' selected' : '';
+      return `<span class="tag-chip${sel}" onclick="this.classList.toggle('selected')">${t}</span>`;
+    }).join('');
+  }
+
+  // ========== Add / Edit Customer ==========
+  let editingCustomerId = null;
+  function openAddCustomerModal() {
+    editingCustomerId = null;
+    document.getElementById('customerModalTitle').textContent = '添加客户';
+    document.getElementById('cId').value = '';
+    document.getElementById('cName').value = '';
+    document.getElementById('cWechat').value = '';
+    document.getElementById('cPhone').value = '';
+    document.getElementById('cNote').value = '';
+    renderTagChips([]);
+    openModal('customerModal');
+  }
+  function openEditCustomerModal(id) {
+    const data = getData();
+    const c = data.customers.find(c => c.id === id);
+    if (!c) return;
+    editingCustomerId = id;
+    document.getElementById('customerModalTitle').textContent = '编辑客户';
+    document.getElementById('cId').value = id;
+    document.getElementById('cName').value = c.name || '';
+    document.getElementById('cWechat').value = c.wechat || '';
+    document.getElementById('cPhone').value = c.phone || '';
+    document.getElementById('cNote').value = c.note || '';
+    renderTagChips(c.manualTags || []);
+    openModal('customerModal');
+  }
+  function saveCustomer() {
+    const name = document.getElementById('cName').value.trim();
+    if (!name) { showToast('请输入客户姓名'); return; }
+    const data = getData();
+    const manualTags = Array.from(document.querySelectorAll('#tagSelect .tag-chip.selected')).map(el => el.textContent);
+    const wechat = document.getElementById('cWechat').value.trim();
+    const phone = document.getElementById('cPhone').value.trim();
+    const note = document.getElementById('cNote').value.trim();
+
+    if (editingCustomerId) {
+      const c = data.customers.find(c => c.id === editingCustomerId);
+      if (c) {
+        c.name = name; c.wechat = wechat; c.phone = phone; c.note = note;
+        c.manualTags = manualTags;
+      }
+    } else {
+      data.customers.push({
+        id: genId(), name, wechat, phone, note, manualTags,
+        purchases: [], createdAt: new Date().toISOString()
+      });
+    }
+    saveData(data);
+    closeModal('customerModal');
+    render();
+    // 重新选中
+    const targetId = editingCustomerId || data.customers[data.customers.length - 1]?.id;
+    selectCustomer(targetId);
+    showToast('已保存');
+  }
+
+  // ========== Purchase ==========
+  let activeCustomerId = null;
+  function openAddPurchaseModal(customerId) {
+    activeCustomerId = customerId;
+    document.getElementById('pProduct').value = '';
+    document.getElementById('pAmount').value = '';
+    document.getElementById('pDate').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('pPlatform').value = '淘宝';
+    document.getElementById('pNote').value = '';
+    openModal('purchaseModal');
+  }
+  function savePurchase() {
+    const amount = parseFloat(document.getElementById('pAmount').value);
+    if (isNaN(amount) || amount <= 0) { showToast('请输入有效金额'); return; }
+    const data = getData();
+    const c = data.customers.find(c => c.id === activeCustomerId);
+    if (!c) return;
+    c.purchases = c.purchases || [];
+    c.purchases.push({
+      id: genId(),
+      product: document.getElementById('pProduct').value.trim(),
+      amount,
+      date: document.getElementById('pDate').value,
+      platform: document.getElementById('pPlatform').value,
+      note: document.getElementById('pNote').value.trim()
+    });
+    c.purchases.sort((a, b) => new Date(b.date) - new Date(a.date));
+    saveData(data);
+    closeModal('purchaseModal');
+    selectCustomer(activeCustomerId);
+    render();
+    showToast('购买记录已添加');
+  }
+  function deletePurchase(customerId, purchaseId) {
+    if (!confirm('删除这条购买记录？')) return;
+    const data = getData();
+    const c = data.customers.find(c => c.id === customerId);
+    if (!c) return;
+    c.purchases = (c.purchases || []).filter(p => p.id !== purchaseId);
+    saveData(data);
+    selectCustomer(customerId);
+    render();
+    showToast('已删除');
+  }
+  function deleteCustomer(id) {
+    if (!confirm('确定删除该客户？所有记录将被清除。')) return;
+    const data = getData();
+    data.customers = data.customers.filter(c => c.id !== id);
+    saveData(data);
+    if (activeCustomerId === id) {
+      activeCustomerId = null;
+      document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
+    }
+    render();
+    showToast('已删除');
+  }
+
+  // ========== Select Customer ==========
+  function selectCustomer(id) {
+    activeCustomerId = id;
+    const data = getData();
+    const c = data.customers.find(c => c.id === id);
+    if (!c) return;
+    const tags = computeTags(c);
+    const totalSpent = (c.purchases || []).reduce((s, p) => s + (p.amount || 0), 0);
+    const count = (c.purchases || []).length;
+    const lastPurchase = (c.purchases || []).length > 0 ? c.purchases[0] : null;
+
+    const panel = document.getElementById('detailPanel');
+    panel.innerHTML = `
+      <div class="detail-header">
+        <div class="detail-name">${c.name}</div>
+        <div class="detail-actions">
+          <button class="btn btn-ice" onclick="openEditCustomerModal('${c.id}')">编辑</button>
+          <button class="btn btn-danger" onclick="deleteCustomer('${c.id}')">删除</button>
+        </div>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><span class="info-label">微信号</span><span class="info-value">${c.wechat || '—'}</span></div>
+        <div class="info-item"><span class="info-label">手机号</span><span class="info-value">${c.phone || '—'}</span></div>
+        <div class="info-item"><span class="info-label">累计消费</span><span class="info-value">¥${totalSpent.toFixed(2)}</span></div>
+        <div class="info-item"><span class="info-label">购买次数</span><span class="info-value">${count}</span></div>
+        <div class="info-item"><span class="info-label">最近购买</span><span class="info-value">${lastPurchase ? lastPurchase.date : '—'}</span></div>
+        <div class="info-item"><span class="info-label">备注</span><span class="info-value">${c.note || '—'}</span></div>
+      </div>
+      <div style="display:flex; gap:4px; flex-wrap:wrap;">${tags.map(t => `<span class="tag ${TAG_COLORS[t] || 'tag-neutral'}">${t}</span>`).join('')}</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
+        <span style="font-family:var(--font-display); font-size:0.9rem; font-weight:700;">购买记录</span>
+        <button class="btn btn-amber" style="font-size:0.65rem; padding:4px 10px;" onclick="openAddPurchaseModal('${c.id}')">+ 添加</button>
+      </div>
+      <div class="purchase-list">
+        ${(c.purchases || []).length === 0
+          ? '<div style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.7rem;">暂无购买记录</div>'
+          : c.purchases.map(p => `
+            <div class="purchase-row">
+              <span class="purchase-date">${p.date}</span>
+              <span>${p.product || '—'}</span>
+              <span style="color:var(--text-muted);">${p.platform}</span>
+              <span class="purchase-amount">¥${p.amount.toFixed(2)}</span>
+              <button class="btn btn-danger" style="font-size:0.55rem; padding:2px 6px;" onclick="event.stopPropagation(); deletePurchase('${c.id}','${p.id}')">×</button>
+            </div>`).join('')
+        }
+      </div>
+    `;
+
+    // 高亮选中行
+    document.querySelectorAll('.customer-row').forEach(r => r.classList.remove('active'));
+    const targetRow = document.querySelector(`.customer-row[data-id="${id}"]`);
+    if (targetRow) targetRow.classList.add('active');
+  }
+
+  // ========== Render ==========
+  function render() {
+    const data = getData();
+    const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    let filtered = data.customers;
+    if (search) {
+      filtered = data.customers.filter(c => {
+        const tags = computeTags(c);
+        return c.name.toLowerCase().includes(search)
+          || (c.wechat || '').toLowerCase().includes(search)
+          || (c.phone || '').toLowerCase().includes(search)
+          || tags.some(t => t.toLowerCase().includes(search));
+      });
+    }
+
+    // 客户列表
+    const listBody = document.getElementById('customerList');
+    listBody.innerHTML = filtered.map(c => {
+      const tags = computeTags(c);
+      const totalSpent = (c.purchases || []).reduce((s, p) => s + (p.amount || 0), 0);
+      const lastPurchase = (c.purchases || []).length > 0 ? c.purchases[0] : null;
+      const daysSince = lastPurchase ? Math.floor((Date.now() - new Date(lastPurchase.date).getTime()) / (1000 * 60 * 60 * 24)) : null;
+      return `
+        <div class="customer-row" data-id="${c.id}" onclick="selectCustomer('${c.id}')">
+          <div class="customer-avatar">${c.name[0]?.toUpperCase() || '?'}</div>
+          <div class="customer-info">
+            <div class="customer-name">${c.name}</div>
+            <div class="customer-meta">
+              累计 ¥${totalSpent.toFixed(0)} · ${(c.purchases||[]).length}次
+              ${daysSince !== null ? ` · ${daysSince}天前` : ''}
+            </div>
+          </div>
+          <div class="customer-tags">${tags.slice(0, 2).map(t => `<span class="tag ${TAG_COLORS[t] || 'tag-neutral'}">${t}</span>`).join('')}</div>
+        </div>`;
+    }).join('');
+    if (filtered.length === 0) {
+      listBody.innerHTML = '<div style="padding:24px; text-align:center; color:var(--text-muted); font-family:var(--font-mono); font-size:0.75rem;">无匹配客户</div>';
+    }
+    document.getElementById('listCount').textContent = `${filtered.length}`;
+
+    // 统计
+    const now = Date.now();
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    let followUp = 0, lost = 0, newThisMonth = 0, vip = 0;
+    data.customers.forEach(c => {
+      const tags = computeTags(c);
+      if (tags.includes('需跟进')) followUp++;
+      if (tags.includes('已流失')) lost++;
+      if (tags.includes('VIP')) vip++;
+      const created = new Date(c.createdAt);
+      if (created.getMonth() === currentMonth && created.getFullYear() === currentYear) newThisMonth++;
+    });
+    document.getElementById('statFollowUp').textContent = followUp;
+    document.getElementById('statLost').textContent = lost;
+    document.getElementById('statNew').textContent = newThisMonth;
+    document.getElementById('statVIP').textContent = vip;
+    document.getElementById('statNewMonth').textContent = `${currentYear}年${currentMonth + 1}月`;
+
+    // 如果当前选中的客户已被删除，清空详情
+    if (activeCustomerId && !data.customers.find(c => c.id === activeCustomerId)) {
+      activeCustomerId = null;
+      document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
+    }
+  }
+
+  // ========== CSV Export ==========
+  function exportCSV() {
+    const data = getData();
+    if (data.customers.length === 0) { showToast('暂无数据可导出'); return; }
+    let csv = '姓名,微信号,手机号,标签,累计消费,购买次数,最近购买,备注\n';
+    data.customers.forEach(c => {
+      const tags = computeTags(c).join(';');
+      const totalSpent = (c.purchases || []).reduce((s, p) => s + (p.amount || 0), 0);
+      const lastPurchase = (c.purchases || []).length > 0 ? c.purchases[0].date : '';
+      csv += `${c.name},${c.wechat || ''},${c.phone || ''},${tags},${totalSpent.toFixed(2)},${(c.purchases||[]).length},${lastPurchase},${c.note || ''}\n`;
+    });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '客维宝_客户数据.csv';
+    a.click();
+    showToast('导出成功');
+  }
+
+  // ========== Demo Data ==========
+  function loadDemo() {
+    const now = new Date();
+    const demo = {
+      customers: [
+        {
+          id: 'd1', name: '张美琳', wechat: 'meilin_shop', phone: '13800001111', note: '喜欢买连衣裙，对价格敏感',
+          manualTags: ['批发'],
+          purchases: [
+            { id: 'p1', product: '夏季连衣裙', amount: 129, date: '2025-06-01', platform: '淘宝', note: '' },
+            { id: 'p2', product: '防晒帽', amount: 19.9, date: '2025-05-15', platform: '拼多多', note: '' },
+            { id: 'p3', product: '运动鞋', amount: 159, date: '2025-04-20', platform: '抖店', note: '尺码换过一次' },
+            { id: 'p4', product: '瑜伽垫', amount: 59, date: '2025-03-10', platform: '小红书', note: '' },
+            { id: 'p5', product: 'T恤', amount: 39.9, date: '2025-02-05', platform: '淘宝', note: '' },
+          ],
+          createdAt: '2025-01-15'
+        },
+        {
+          id: 'd2', name: '李国强', wechat: 'guoqiang_li', phone: '', note: '',
+          manualTags: [],
+          purchases: [
+            { id: 'p6', product: '蓝牙耳机', amount: 79, date: '2025-03-20', platform: '淘宝', note: '' },
+          ],
+          createdAt: '2025-03-20'
+        },
+        {
+          id: 'd3', name: '王芳', wechat: 'wangfang_wx', phone: '13900002222', note: 'VIP客户，每次上新都会买',
+          manualTags: ['VIP'],
+          purchases: [
+            { id: 'p7', product: '手机壳', amount: 9.9, date: '2025-06-02', platform: '拼多多', note: '' },
+            { id: 'p8', product: '数据线', amount: 8.8, date: '2025-05-28', platform: '拼多多', note: '' },
+            { id: 'p9', product: '充电宝', amount: 89, date: '2025-05-10', platform: '淘宝', note: '' },
+            { id: 'p10', product: '耳机', amount: 129, date: '2025-04-22', platform: '抖店', note: '' },
+            { id: 'p11', product: '音箱', amount: 299, date: '2025-04-01', platform: '淘宝', note: '' },
+            { id: 'p12', product: '手表', amount: 199, date: '2025-03-15', platform: '小红书', note: '' },
+          ],
+          createdAt: '2025-02-01'
+        },
+        {
+          id: 'd4', name: '陈小明', wechat: '', phone: '', note: '只买过一次，需要跟进',
+          manualTags: [],
+          purchases: [
+            { id: 'p13', product: 'T恤男', amount: 39.9, date: '2025-01-10', platform: '抖店', note: '' },
+          ],
+          createdAt: '2025-01-10'
+        },
+      ]
+    };
+    saveData(demo);
+    activeCustomerId = null;
+    document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
+    render();
+    showToast('已加载 4 条示例客户');
+  }
+
+  // ========== Init ==========
+  render();
+</script>
+</body>
+</html>
