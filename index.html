@@ -38,10 +38,9 @@
       --border-active: rgba(0, 0, 0, 0.22);
       --text-primary: #1A1A1A;
       --text-secondary: #5A5550;
-      --text-muted: #8A8580;
+      --text-muted: #5A5550; /* 加深：原来是 #8A8580，现在更深更清晰 */
     }
 
-    /* ========== Reset ========== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: var(--font-ui);
@@ -53,7 +52,6 @@
       transition: background 0.3s, color 0.3s;
       position: relative;
     }
-    /* 胶片噪点纹理 */
     body::before {
       content: '';
       position: fixed;
@@ -65,7 +63,6 @@
     }
     .container { max-width: 1340px; margin: 0 auto; padding: 24px 0; position: relative; z-index: 1; }
 
-    /* ========== 导航栏 ========== */
     .navbar {
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
       padding: 14px 20px; margin-bottom: 24px;
@@ -99,7 +96,6 @@
     }
     .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
 
-    /* ========== Bento 统计卡片 ========== */
     .bento-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-bottom: 1px; }
     @media (max-width: 900px) { .bento-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 500px) { .bento-row { grid-template-columns: 1fr; } }
@@ -109,7 +105,6 @@
       padding: 18px; position: relative; overflow: hidden;
       transition: 0.25s; cursor: default;
     }
-    /* 悬停：反光位移 */
     .stat-card::after {
       content: '';
       position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -136,11 +131,9 @@
       margin-top: 4px;
     }
 
-    /* ========== 主内容双栏 ========== */
     .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 1px; min-height: 60vh; }
     @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
 
-    /* 客户列表 */
     .list-panel {
       background: var(--surface); backdrop-filter: blur(var(--blur));
       border: 1px solid var(--border); border-radius: var(--radius);
@@ -183,7 +176,6 @@
     .tag-danger { color: var(--danger); border-color: rgba(196,75,75,0.3); background: rgba(196,75,75,0.08); }
     .tag-neutral { color: var(--text-secondary); }
 
-    /* 客户详情面板 */
     .detail-panel {
       background: var(--surface); backdrop-filter: blur(var(--blur));
       border: 1px solid var(--border); border-radius: var(--radius);
@@ -220,7 +212,6 @@
     .purchase-date { color: var(--text-muted); }
     .purchase-amount { font-weight: 600; }
 
-    /* ========== 按钮 ========== */
     .btn {
       padding: 8px 16px; border-radius: var(--radius); font-family: var(--font-mono);
       font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: 0.2s;
@@ -235,7 +226,6 @@
     .btn-danger { border-color: var(--danger); color: var(--danger); font-size: 0.65rem; padding: 4px 10px; }
     .btn-danger:hover { background: var(--danger); color: white; }
 
-    /* ========== 弹窗 ========== */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
@@ -270,7 +260,6 @@
     }
     .tag-chip.selected { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
 
-    /* ========== Toast ========== */
     .toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       background: var(--surface); border: 1px solid var(--amber);
@@ -288,7 +277,6 @@
 </head>
 <body>
 <div class="container">
-  <!-- 导航栏 -->
   <nav class="navbar">
     <div class="brand">
       <span>修修图·客维宝</span>
@@ -303,7 +291,6 @@
     </div>
   </nav>
 
-  <!-- Bento 统计 -->
   <div class="bento-row">
     <div class="stat-card">
       <div class="stat-label">需跟进</div>
@@ -327,9 +314,7 @@
     </div>
   </div>
 
-  <!-- 主内容 -->
   <div class="main-grid">
-    <!-- 客户列表 -->
     <div class="list-panel">
       <div class="list-header">
         <span>客户列表</span>
@@ -338,7 +323,6 @@
       <div class="list-body" id="customerList"></div>
     </div>
 
-    <!-- 客户详情 -->
     <div class="detail-panel" id="detailPanel">
       <div class="detail-empty">← 选择客户查看详情</div>
     </div>
@@ -347,7 +331,6 @@
   <div class="footer">© 2025 修修图 Xiuxiutu · 数据存于浏览器本地，不上传 · 触觉野兽 × 液态玻璃</div>
 </div>
 
-<!-- 添加/编辑客户弹窗 -->
 <div class="modal-overlay" id="customerModal">
   <div class="modal">
     <h3 id="customerModalTitle">添加客户</h3>
@@ -370,7 +353,6 @@
   </div>
 </div>
 
-<!-- 添加购买记录弹窗 -->
 <div class="modal-overlay" id="purchaseModal">
   <div class="modal">
     <h3>添加购买记录</h3>
@@ -439,13 +421,11 @@
     const daysSinceLast = lastPurchase ? Math.floor((now - lastPurchase) / (1000 * 60 * 60 * 24)) : Infinity;
 
     const tags = new Set(customer.manualTags || []);
-    // 自动标签
     if (totalSpent >= 500 || count >= 5) tags.add('VIP');
     if (count >= 2 && count < 5) tags.add('老客');
     if (daysSinceLast > 30 && daysSinceLast <= 90) tags.add('需跟进');
     if (daysSinceLast > 90) tags.add('已流失');
     if (count === 1) tags.add('新客');
-    // 移除冲突标签
     if (tags.has('VIP')) { tags.delete('老客'); tags.delete('新客'); }
     if (tags.has('已流失')) tags.delete('需跟进');
     if (tags.has('新客') && count > 1) tags.delete('新客');
@@ -463,7 +443,6 @@
   function openModal(id) { document.getElementById(id).classList.add('active'); }
   function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-  // ========== Tag Chips (弹窗内) ==========
   function renderTagChips(selected) {
     const container = document.getElementById('tagSelect');
     container.innerHTML = ALL_TAGS.map(t => {
@@ -472,7 +451,6 @@
     }).join('');
   }
 
-  // ========== Add / Edit Customer ==========
   let editingCustomerId = null;
   function openAddCustomerModal() {
     editingCustomerId = null;
@@ -523,13 +501,11 @@
     saveData(data);
     closeModal('customerModal');
     render();
-    // 重新选中
     const targetId = editingCustomerId || data.customers[data.customers.length - 1]?.id;
     selectCustomer(targetId);
     showToast('已保存');
   }
 
-  // ========== Purchase ==========
   let activeCustomerId = null;
   function openAddPurchaseModal(customerId) {
     activeCustomerId = customerId;
@@ -586,7 +562,6 @@
     showToast('已删除');
   }
 
-  // ========== Select Customer ==========
   function selectCustomer(id) {
     activeCustomerId = id;
     const data = getData();
@@ -634,13 +609,11 @@
       </div>
     `;
 
-    // 高亮选中行
     document.querySelectorAll('.customer-row').forEach(r => r.classList.remove('active'));
     const targetRow = document.querySelector(`.customer-row[data-id="${id}"]`);
     if (targetRow) targetRow.classList.add('active');
   }
 
-  // ========== Render ==========
   function render() {
     const data = getData();
     const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
@@ -655,7 +628,6 @@
       });
     }
 
-    // 客户列表
     const listBody = document.getElementById('customerList');
     listBody.innerHTML = filtered.map(c => {
       const tags = computeTags(c);
@@ -680,7 +652,6 @@
     }
     document.getElementById('listCount').textContent = `${filtered.length}`;
 
-    // 统计
     const now = Date.now();
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -699,14 +670,12 @@
     document.getElementById('statVIP').textContent = vip;
     document.getElementById('statNewMonth').textContent = `${currentYear}年${currentMonth + 1}月`;
 
-    // 如果当前选中的客户已被删除，清空详情
     if (activeCustomerId && !data.customers.find(c => c.id === activeCustomerId)) {
       activeCustomerId = null;
       document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
     }
   }
 
-  // ========== CSV Export ==========
   function exportCSV() {
     const data = getData();
     if (data.customers.length === 0) { showToast('暂无数据可导出'); return; }
@@ -725,9 +694,7 @@
     showToast('导出成功');
   }
 
-  // ========== Demo Data ==========
   function loadDemo() {
-    const now = new Date();
     const demo = {
       customers: [
         {
@@ -780,7 +747,6 @@
     showToast('已加载 4 条示例客户');
   }
 
-  // ========== Init ==========
   render();
 </script>
 </body>
