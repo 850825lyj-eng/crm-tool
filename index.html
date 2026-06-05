@@ -6,7 +6,6 @@
   <title>修修图·客维宝 | 私域客户关系管理</title>
   <meta name="description" content="修修图·客维宝，个体电商卖家的轻量CRM工具。客户档案、购买记录、智能标签、复购提醒，数据存本地，零上传。">
   <style>
-    /* ========== Fonts ========== */
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
     :root {
@@ -38,7 +37,7 @@
       --border-active: rgba(0, 0, 0, 0.22);
       --text-primary: #1A1A1A;
       --text-secondary: #5A5550;
-      --text-muted: #5A5550; /* 加深：原来是 #8A8580，现在更深更清晰 */
+      --text-muted: #5A5550;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -260,6 +259,33 @@
     }
     .tag-chip.selected { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
 
+    /* 功能介绍 / 核心优势 / 关于我们 三栏卡片 */
+    .info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 1px; }
+    @media (max-width: 900px) { .info-row { grid-template-columns: 1fr; } }
+    .info-card {
+      background: var(--surface); backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; position: relative; overflow: hidden;
+    }
+    .info-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .info-card h3 {
+      font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+      letter-spacing: -0.3px; margin-bottom: 10px; color: var(--amber);
+    }
+    .info-card ul {
+      list-style: none; display: flex; flex-direction: column; gap: 6px;
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-secondary);
+    }
+    .info-card ul li::before { content: '▸ '; color: var(--text-muted); }
+    .info-card p {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-secondary); line-height: 1.7;
+    }
+
     .toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       background: var(--surface); border: 1px solid var(--amber);
@@ -288,6 +314,8 @@
       <button class="btn btn-amber" onclick="openAddCustomerModal()">+ 添加客户</button>
       <button class="btn" onclick="loadDemo()">↺ 示例</button>
       <button class="btn" onclick="exportCSV()">↗ 导出</button>
+      <button class="btn btn-ice" onclick="backupData()">↘ 备份</button>
+      <button class="btn btn-ice" onclick="restoreData()">↖ 恢复</button>
     </div>
   </nav>
 
@@ -325,6 +353,40 @@
 
     <div class="detail-panel" id="detailPanel">
       <div class="detail-empty">← 选择客户查看详情</div>
+    </div>
+  </div>
+
+  <!-- 功能介绍 / 核心优势 / 关于我们 -->
+  <div class="info-row">
+    <div class="info-card">
+      <h3>📖 功能介绍</h3>
+      <ul>
+        <li>客户档案管理：记录姓名、联系方式、购买偏好</li>
+        <li>购买记录追踪：详细记录每笔交易的金额、日期、平台</li>
+        <li>智能标签系统：自动根据购买行为标注 VIP、需跟进等标签</li>
+        <li>复购提醒：自动识别超过 30 天未购买的客户，提醒跟进</li>
+        <li>数据导出备份：支持 CSV 导出和完整 JSON 备份恢复</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3>🛡️ 核心优势</h3>
+      <ul>
+        <li>数据完全存储在浏览器本地，不上传任何服务器</li>
+        <li>无需注册登录，打开即用，零门槛</li>
+        <li>支持一键备份恢复，换电脑也不怕数据丢失</li>
+        <li>定期导出 CSV，用 Excel 也能打开管理</li>
+        <li>完全免费，无任何隐藏收费</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3>ℹ️ 关于我们</h3>
+      <p>
+        修修图是专为个体电商卖家打造的轻量工具集合品牌。<br><br>
+        覆盖选品 → 作图 → 上架 → 售后全链路，
+        目前已有美工百宝箱、电商工作台、隐私百宝箱、
+        选品罗盘、客维宝五大产品。<br><br>
+        所有工具免费使用，数据零上传，隐私安全有保障。
+      </p>
     </div>
   </div>
 
@@ -402,6 +464,50 @@
   }
   function saveData(data) { localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
   function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  // ========== Backup / Restore ==========
+  function backupData() {
+    const data = getData();
+    if (data.customers.length === 0) { showToast('暂无数据可备份'); return; }
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const date = new Date().toISOString().slice(0, 10);
+    a.download = `客维宝_完整备份_${date}.json`;
+    a.click();
+    showToast(`备份成功 (${data.customers.length} 位客户)`);
+  }
+
+  function restoreData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (!data.customers || !Array.isArray(data.customers)) {
+            showToast('文件格式无效，请选择正确的备份文件');
+            return;
+          }
+          if (!confirm(`即将恢复 ${data.customers.length} 位客户数据，当前数据将被覆盖。确认继续？`)) return;
+          saveData(data);
+          activeCustomerId = null;
+          document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
+          render();
+          showToast(`恢复成功 (${data.customers.length} 位客户)`);
+        } catch {
+          showToast('文件解析失败，请检查文件是否完整');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
 
   // ========== Tag System ==========
   const ALL_TAGS = ['VIP', '老客', '需跟进', '已流失', '批发', '新客'];
@@ -698,12 +804,12 @@
     const demo = {
       customers: [
         {
-          id: 'd1', name: '张美琳', wechat: 'meilin_shop', phone: '13800001111', note: '喜欢买连衣裙，对价格敏感',
+          id: 'd1', name: '张美琳', wechat: 'meilin_shop', phone: '13800001111', note: '喜欢买连衣裙',
           manualTags: ['批发'],
           purchases: [
             { id: 'p1', product: '夏季连衣裙', amount: 129, date: '2025-06-01', platform: '淘宝', note: '' },
             { id: 'p2', product: '防晒帽', amount: 19.9, date: '2025-05-15', platform: '拼多多', note: '' },
-            { id: 'p3', product: '运动鞋', amount: 159, date: '2025-04-20', platform: '抖店', note: '尺码换过一次' },
+            { id: 'p3', product: '运动鞋', amount: 159, date: '2025-04-20', platform: '抖店', note: '' },
             { id: 'p4', product: '瑜伽垫', amount: 59, date: '2025-03-10', platform: '小红书', note: '' },
             { id: 'p5', product: 'T恤', amount: 39.9, date: '2025-02-05', platform: '淘宝', note: '' },
           ],
