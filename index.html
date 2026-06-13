@@ -498,17 +498,38 @@
     '已流失': 'tag-danger', '批发': 'tag-neutral', '新客': 'tag-ice'
   };
 
-  function computeTags(customer) {
+ function computeTags(customer) {
     const now = Date.now();
     const purchases = customer.purchases || [];
     const totalSpent = purchases.reduce((s, p) => s + (p.amount || 0), 0);
     const count = purchases.length;
     const lastPurchase = purchases.length > 0
-      ? Math.max(...purchases.map(p => new Date(p.date).getTime()))
-      : null;
+        ? Math.max(...purchases.map(p => new Date(p.date).getTime()))
+        : null;
     const daysSinceLast = lastPurchase ? Math.floor((now - lastPurchase) / (1000 * 60 * 60 * 24)) : Infinity;
 
     const tags = new Set(customer.manualTags || []);
+
+    // 【核心修改】VIP 仅由消费金额判定，不包含购买次数
+    if (totalSpent >= vipThreshold) {
+        tags.add('VIP');
+    }
+
+    if (count >= 2 && count < 5) tags.add('老客');
+    if (daysSinceLast > 30 && daysSinceLast <= 90) tags.add('需跟进');
+    if (daysSinceLast > 90) tags.add('已流失');
+    if (count === 1) tags.add('新客');
+
+    // 标签互斥整理
+    if (tags.has('VIP')) {
+        tags.delete('老客');
+        tags.delete('新客');
+    }
+    if (tags.has('已流失')) tags.delete('需跟进');
+    if (tags.has('新客') && count > 1) tags.delete('新客');
+
+    return Array.from(tags);
+}
     if (totalSpent >= vipThreshold || count >= 5) tags.add('VIP');
     if (count >= 2 && count < 5) tags.add('老客');
     if (daysSinceLast > 30 && daysSinceLast <= 90) tags.add('需跟进');
