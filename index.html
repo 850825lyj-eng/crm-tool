@@ -81,13 +81,21 @@
       border: 1px solid rgba(184, 107, 44, 0.3);
     }
     .nav-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .search-wrapper { position: relative; display: flex; align-items: center; }
     .search-input {
-      padding: 8px 12px; border-radius: var(--radius); border: 1px solid var(--border);
+      padding: 8px 28px 8px 12px; border-radius: var(--radius); border: 1px solid var(--border);
       background: rgba(0,0,0,0.2); color: var(--text-primary);
       font-family: var(--font-mono); font-size: 0.78rem; width: 180px; transition: 0.2s;
     }
     .search-input:focus { outline: none; border-color: var(--amber); }
     .search-input::placeholder { color: var(--text-muted); }
+    .search-clear {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      font-size: 1.1rem; line-height: 1; padding: 2px; display: none;
+      font-family: var(--font-ui);
+    }
+    .search-clear:hover { color: var(--amber); }
     .btn-icon {
       width: 36px; height: 36px; border-radius: var(--radius); border: 1px solid var(--border);
       background: transparent; cursor: pointer; font-size: 1rem; display: flex;
@@ -95,14 +103,14 @@
     }
     .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
 
-    .bento-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-bottom: 1px; }
+    .bento-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-bottom: 2px; }
     @media (max-width: 900px) { .bento-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 500px) { .bento-row { grid-template-columns: 1fr; } }
     .stat-card {
       background: var(--surface); backdrop-filter: blur(var(--blur));
       border: 1px solid var(--border); border-radius: var(--radius);
       padding: 18px; position: relative; overflow: hidden;
-      transition: 0.25s; cursor: default;
+      transition: 0.25s; cursor: pointer;
     }
     .stat-card::after {
       content: '';
@@ -130,8 +138,8 @@
       margin-top: 4px;
     }
 
-    .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 1px; min-height: 60vh; }
-    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+    .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 2px; min-height: 72vh; }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; min-height: 50vh; } }
 
     .list-panel {
       background: var(--surface); backdrop-filter: blur(var(--blur));
@@ -182,10 +190,13 @@
       overflow-y: auto; position: relative;
     }
     .detail-empty {
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
       height: 100%; color: var(--text-muted);
       font-family: var(--font-mono); font-size: 0.8rem;
+      gap: 12px;
     }
+    .detail-empty svg { width: 48px; height: 48px; opacity: 0.6; }
     .detail-header {
       display: flex; align-items: center; justify-content: space-between;
       padding-bottom: 12px; border-bottom: 1px solid var(--border);
@@ -259,31 +270,24 @@
     }
     .tag-chip.selected { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
 
-    /* 功能介绍 / 核心优势 / 关于我们 三栏卡片 */
-    .info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 32px; }
+    /* 底部精简信息条 */
+    .info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 2px; }
     @media (max-width: 900px) { .info-row { grid-template-columns: 1fr; } }
     .info-card {
       background: var(--surface); backdrop-filter: blur(var(--blur));
       border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 20px; position: relative; overflow: hidden;
+      padding: 10px 12px; position: relative; overflow: hidden;
+      font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-secondary); line-height: 1.4;
     }
-    .info-card::after {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    .info-card h3 {
-      font-family: var(--font-display); font-size: 1rem; font-weight: 700;
-      letter-spacing: -0.3px; margin-bottom: 10px; color: var(--amber);
-    }
-    .info-card ul {
-      list-style: none; display: flex; flex-direction: column; gap: 6px;
-      font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-secondary);
-    }
-    .info-card ul li::before { content: '▸ '; color: var(--text-muted); }
-    .info-card p {
-      font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-secondary); line-height: 1.7;
+    .info-card strong { color: var(--amber); font-weight: 600; }
+    /* 隐私隔离栏 */
+    .privacy-banner {
+      margin-top: 2px;
+      background: var(--surface); backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 18px; text-align: center;
+      font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+      color: var(--text-primary); letter-spacing: 0.3px;
     }
 
     .toast {
@@ -296,8 +300,8 @@
     }
     .toast.show { opacity: 1; }
     .footer {
-      text-align: center; margin-top: 32px; padding: 16px 0;
-      color: var(--text-muted); font-size: 0.7rem; font-family: var(--font-mono);
+      text-align: center; margin-top: 2px; padding: 10px 0;
+      color: var(--text-muted); font-size: 0.65rem; font-family: var(--font-mono);
     }
   </style>
 </head>
@@ -309,7 +313,10 @@
       <span class="brand-mono">CRM</span>
     </div>
     <div class="nav-actions">
-      <input type="text" class="search-input" id="searchInput" placeholder="搜索客户 / 标签..." oninput="render()">
+      <div class="search-wrapper">
+        <input type="text" class="search-input" id="searchInput" placeholder="搜索客户 / 标签..." oninput="handleSearchInput()">
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+      </div>
       <button class="btn-icon" id="themeToggle" title="切换浅色模式">◐</button>
       <button class="btn btn-amber" onclick="openAddCustomerModal()">+ 添加客户</button>
       <button class="btn" onclick="loadDemo()">↺ 示例</button>
@@ -335,10 +342,10 @@
       <div class="stat-value" id="statNew">0</div>
       <div class="stat-sub" id="statNewMonth"></div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" id="vipCard">
       <div class="stat-label">VIP 客户</div>
       <div class="stat-value amber" id="statVIP">0</div>
-      <div class="stat-sub">累计消费 ≥ ¥500</div>
+      <div class="stat-sub" id="statVIPSub">累计消费 ≥ ¥500</div>
     </div>
   </div>
 
@@ -352,45 +359,27 @@
     </div>
 
     <div class="detail-panel" id="detailPanel">
-      <div class="detail-empty">← 选择客户查看详情</div>
+      <div class="detail-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <span>选择客户查看详情</span>
+      </div>
     </div>
   </div>
 
-  <!-- 功能介绍 / 核心优势 / 关于我们 -->
+  <!-- 底部信息精简 -->
   <div class="info-row">
-    <div class="info-card">
-      <h3>📖 功能介绍</h3>
-      <ul>
-        <li>客户档案管理：记录姓名、联系方式、购买偏好</li>
-        <li>购买记录追踪：详细记录每笔交易的金额、日期、平台</li>
-        <li>智能标签系统：自动根据购买行为标注 VIP、需跟进等标签</li>
-        <li>复购提醒：自动识别超过 30 天未购买的客户，提醒跟进</li>
-        <li>数据导出备份：支持 CSV 导出和完整 JSON 备份恢复</li>
-      </ul>
-    </div>
-    <div class="info-card">
-      <h3>🛡️ 核心优势</h3>
-      <ul>
-        <li>数据完全存储在浏览器本地，不上传任何服务器</li>
-        <li>无需注册登录，打开即用，零门槛</li>
-        <li>支持一键备份恢复，换电脑也不怕数据丢失</li>
-        <li>定期导出 CSV，用 Excel 也能打开管理</li>
-        <li>完全免费，无任何隐藏收费</li>
-      </ul>
-    </div>
-    <div class="info-card">
-      <h3>ℹ️ 关于我们</h3>
-      <p>
-        修修图是专为个体电商卖家打造的轻量工具集合品牌。<br><br>
-        覆盖选品 → 作图 → 上架 → 售后全链路，
-        目前已有美工百宝箱、电商工作台、隐私百宝箱、
-        选品罗盘、客维宝五大产品。<br><br>
-        所有工具免费使用，数据零上传，隐私安全有保障。
-      </p>
-    </div>
+    <div class="info-card"><strong>📖 功能</strong> 客户档案 · 购买追踪 · 智能标签 · 复购提醒 · 备份恢复</div>
+    <div class="info-card"><strong>🛡️ 优势</strong> 本地存储 · 无需注册 · 一键备份 · 完全免费 · 零上传</div>
+    <div class="info-card"><strong>ℹ️ 关于</strong> 修修图专为个体电商打造，覆盖选品→作图→上架→售后全链路。</div>
   </div>
-
-  <div class="footer">© 2025 修修图 Xiuxiutu · 数据存于浏览器本地，不上传 · 触觉野兽 × 液态玻璃</div>
+  <div class="privacy-banner">
+    🛡️ 本地沙盒保护：修修图已切断一切外部服务器上传链路。您的客户资产 100% 锁死在当前浏览器的本地存储（LocalStorage）中，断网亦可完美运行，保障商业隐私。
+  </div>
+  <div class="footer">
+    © 2025 修修图 Xiuxiutu · 数据存于浏览器本地，不上传 · 触觉野兽 × 液态玻璃
+  </div>
 </div>
 
 <div class="modal-overlay" id="customerModal">
@@ -443,21 +432,23 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ========== Theme ==========
   (function() {
-    const btn = document.getElementById('themeToggle');
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
     const saved = localStorage.getItem('crm_theme');
-    if (saved === 'light') { document.body.classList.add('light'); btn.textContent = '◑'; }
-    btn.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      const isLight = document.body.classList.contains('light');
-      btn.textContent = isLight ? '◑' : '◐';
+    if (saved === 'light') { body.classList.add('light'); themeToggle.textContent = '◑'; }
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('light');
+      const isLight = body.classList.contains('light');
+      themeToggle.textContent = isLight ? '◑' : '◐';
       localStorage.setItem('crm_theme', isLight ? 'light' : 'dark');
     });
   })();
 
-  // ========== Data ==========
   const DATA_KEY = 'crm_data';
+  const VIP_THRESHOLD_KEY = 'vip_threshold';
+  let vipThreshold = parseFloat(localStorage.getItem(VIP_THRESHOLD_KEY)) || 500;
+
   function getData() {
     try { const d = JSON.parse(localStorage.getItem(DATA_KEY)); return d && d.customers ? d : { customers: [] }; }
     catch { return { customers: [] }; }
@@ -465,7 +456,6 @@
   function saveData(data) { localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
   function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
-  // ========== Backup / Restore ==========
   function backupData() {
     const data = getData();
     if (data.customers.length === 0) { showToast('暂无数据可备份'); return; }
@@ -473,16 +463,14 @@
     const blob = new Blob([json], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    const date = new Date().toISOString().slice(0, 10);
-    a.download = `客维宝_完整备份_${date}.json`;
+    a.download = `客维宝_完整备份_${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     showToast(`备份成功 (${data.customers.length} 位客户)`);
   }
 
   function restoreData() {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
+    input.type = 'file'; input.accept = '.json';
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -490,26 +478,20 @@
       reader.onload = (ev) => {
         try {
           const data = JSON.parse(ev.target.result);
-          if (!data.customers || !Array.isArray(data.customers)) {
-            showToast('文件格式无效，请选择正确的备份文件');
-            return;
-          }
+          if (!data.customers || !Array.isArray(data.customers)) { showToast('文件格式无效'); return; }
           if (!confirm(`即将恢复 ${data.customers.length} 位客户数据，当前数据将被覆盖。确认继续？`)) return;
           saveData(data);
           activeCustomerId = null;
-          document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
+          document.getElementById('detailPanel').innerHTML = `<div class="detail-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>选择客户查看详情</span></div>`;
           render();
           showToast(`恢复成功 (${data.customers.length} 位客户)`);
-        } catch {
-          showToast('文件解析失败，请检查文件是否完整');
-        }
+        } catch { showToast('文件解析失败'); }
       };
       reader.readAsText(file);
     };
     input.click();
   }
 
-  // ========== Tag System ==========
   const ALL_TAGS = ['VIP', '老客', '需跟进', '已流失', '批发', '新客'];
   const TAG_COLORS = {
     'VIP': 'tag-amber', '老客': 'tag-ice', '需跟进': 'tag-amber',
@@ -527,7 +509,7 @@
     const daysSinceLast = lastPurchase ? Math.floor((now - lastPurchase) / (1000 * 60 * 60 * 24)) : Infinity;
 
     const tags = new Set(customer.manualTags || []);
-    if (totalSpent >= 500 || count >= 5) tags.add('VIP');
+    if (totalSpent >= vipThreshold || count >= 5) tags.add('VIP');
     if (count >= 2 && count < 5) tags.add('老客');
     if (daysSinceLast > 30 && daysSinceLast <= 90) tags.add('需跟进');
     if (daysSinceLast > 90) tags.add('已流失');
@@ -538,14 +520,12 @@
     return Array.from(tags);
   }
 
-  // ========== Toast ==========
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  // ========== Modal ==========
   function openModal(id) { document.getElementById(id).classList.add('active'); }
   function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -594,15 +574,9 @@
 
     if (editingCustomerId) {
       const c = data.customers.find(c => c.id === editingCustomerId);
-      if (c) {
-        c.name = name; c.wechat = wechat; c.phone = phone; c.note = note;
-        c.manualTags = manualTags;
-      }
+      if (c) { c.name = name; c.wechat = wechat; c.phone = phone; c.note = note; c.manualTags = manualTags; }
     } else {
-      data.customers.push({
-        id: genId(), name, wechat, phone, note, manualTags,
-        purchases: [], createdAt: new Date().toISOString()
-      });
+      data.customers.push({ id: genId(), name, wechat, phone, note, manualTags, purchases: [], createdAt: new Date().toISOString() });
     }
     saveData(data);
     closeModal('customerModal');
@@ -662,7 +636,7 @@
     saveData(data);
     if (activeCustomerId === id) {
       activeCustomerId = null;
-      document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
+      document.getElementById('detailPanel').innerHTML = `<div class="detail-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>选择客户查看详情</span></div>`;
     }
     render();
     showToast('已删除');
@@ -720,6 +694,25 @@
     if (targetRow) targetRow.classList.add('active');
   }
 
+  // 搜索框清除逻辑
+  function handleSearchInput() {
+    const input = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('searchClear');
+    if (input.value.trim()) {
+      clearBtn.style.display = 'block';
+    } else {
+      clearBtn.style.display = 'none';
+    }
+    render();
+  }
+  function clearSearch() {
+    const input = document.getElementById('searchInput');
+    input.value = '';
+    document.getElementById('searchClear').style.display = 'none';
+    render();
+    input.focus();
+  }
+
   function render() {
     const data = getData();
     const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
@@ -768,19 +761,37 @@
       if (tags.includes('已流失')) lost++;
       if (tags.includes('VIP')) vip++;
       const created = new Date(c.createdAt);
-      if (created.getMonth() === currentMonth && created.getFullYear() === currentYear) newThisMonth++;
+      // 修复跨年逻辑：同时检查年份和月份
+      if (created.getFullYear() === currentYear && created.getMonth() === currentMonth) newThisMonth++;
     });
     document.getElementById('statFollowUp').textContent = followUp;
     document.getElementById('statLost').textContent = lost;
     document.getElementById('statNew').textContent = newThisMonth;
     document.getElementById('statVIP').textContent = vip;
     document.getElementById('statNewMonth').textContent = `${currentYear}年${currentMonth + 1}月`;
+    document.getElementById('statVIPSub').textContent = `累计消费 ≥ ¥${vipThreshold}`;
 
     if (activeCustomerId && !data.customers.find(c => c.id === activeCustomerId)) {
       activeCustomerId = null;
-      document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
+      document.getElementById('detailPanel').innerHTML = `<div class="detail-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>选择客户查看详情</span></div>`;
     }
   }
+
+  // VIP阈值点击交互
+  document.getElementById('vipCard').addEventListener('click', function() {
+    const newThreshold = prompt('请输入 VIP 客户累计消费门槛（元）：', vipThreshold);
+    if (newThreshold !== null) {
+      const parsed = parseFloat(newThreshold);
+      if (isNaN(parsed) || parsed < 0) {
+        showToast('请输入有效的数字');
+        return;
+      }
+      vipThreshold = parsed;
+      localStorage.setItem(VIP_THRESHOLD_KEY, vipThreshold);
+      render();
+      showToast(`VIP 门槛已更新为 ¥${vipThreshold}`);
+    }
+  });
 
   function exportCSV() {
     const data = getData();
@@ -803,52 +814,32 @@
   function loadDemo() {
     const demo = {
       customers: [
-        {
-          id: 'd1', name: '张美琳', wechat: 'meilin_shop', phone: '13800001111', note: '喜欢买连衣裙',
-          manualTags: ['批发'],
-          purchases: [
-            { id: 'p1', product: '夏季连衣裙', amount: 129, date: '2025-06-01', platform: '淘宝', note: '' },
-            { id: 'p2', product: '防晒帽', amount: 19.9, date: '2025-05-15', platform: '拼多多', note: '' },
-            { id: 'p3', product: '运动鞋', amount: 159, date: '2025-04-20', platform: '抖店', note: '' },
-            { id: 'p4', product: '瑜伽垫', amount: 59, date: '2025-03-10', platform: '小红书', note: '' },
-            { id: 'p5', product: 'T恤', amount: 39.9, date: '2025-02-05', platform: '淘宝', note: '' },
-          ],
-          createdAt: '2025-01-15'
-        },
-        {
-          id: 'd2', name: '李国强', wechat: 'guoqiang_li', phone: '', note: '',
-          manualTags: [],
-          purchases: [
-            { id: 'p6', product: '蓝牙耳机', amount: 79, date: '2025-03-20', platform: '淘宝', note: '' },
-          ],
-          createdAt: '2025-03-20'
-        },
-        {
-          id: 'd3', name: '王芳', wechat: 'wangfang_wx', phone: '13900002222', note: 'VIP客户，每次上新都会买',
-          manualTags: ['VIP'],
-          purchases: [
-            { id: 'p7', product: '手机壳', amount: 9.9, date: '2025-06-02', platform: '拼多多', note: '' },
-            { id: 'p8', product: '数据线', amount: 8.8, date: '2025-05-28', platform: '拼多多', note: '' },
-            { id: 'p9', product: '充电宝', amount: 89, date: '2025-05-10', platform: '淘宝', note: '' },
-            { id: 'p10', product: '耳机', amount: 129, date: '2025-04-22', platform: '抖店', note: '' },
-            { id: 'p11', product: '音箱', amount: 299, date: '2025-04-01', platform: '淘宝', note: '' },
-            { id: 'p12', product: '手表', amount: 199, date: '2025-03-15', platform: '小红书', note: '' },
-          ],
-          createdAt: '2025-02-01'
-        },
-        {
-          id: 'd4', name: '陈小明', wechat: '', phone: '', note: '只买过一次，需要跟进',
-          manualTags: [],
-          purchases: [
-            { id: 'p13', product: 'T恤男', amount: 39.9, date: '2025-01-10', platform: '抖店', note: '' },
-          ],
-          createdAt: '2025-01-10'
-        },
+        { id: 'd1', name: '张美琳', wechat: 'meilin_shop', phone: '13800001111', note: '喜欢买连衣裙', manualTags: ['批发'], purchases: [
+          { id: 'p1', product: '夏季连衣裙', amount: 129, date: '2025-06-01', platform: '淘宝', note: '' },
+          { id: 'p2', product: '防晒帽', amount: 19.9, date: '2025-05-15', platform: '拼多多', note: '' },
+          { id: 'p3', product: '运动鞋', amount: 159, date: '2025-04-20', platform: '抖店', note: '' },
+          { id: 'p4', product: '瑜伽垫', amount: 59, date: '2025-03-10', platform: '小红书', note: '' },
+          { id: 'p5', product: 'T恤', amount: 39.9, date: '2025-02-05', platform: '淘宝', note: '' },
+        ], createdAt: '2025-01-15' },
+        { id: 'd2', name: '李国强', wechat: 'guoqiang_li', phone: '', note: '', manualTags: [], purchases: [
+          { id: 'p6', product: '蓝牙耳机', amount: 79, date: '2025-03-20', platform: '淘宝', note: '' },
+        ], createdAt: '2025-03-20' },
+        { id: 'd3', name: '王芳', wechat: 'wangfang_wx', phone: '13900002222', note: 'VIP客户', manualTags: ['VIP'], purchases: [
+          { id: 'p7', product: '手机壳', amount: 9.9, date: '2025-06-02', platform: '拼多多', note: '' },
+          { id: 'p8', product: '数据线', amount: 8.8, date: '2025-05-28', platform: '拼多多', note: '' },
+          { id: 'p9', product: '充电宝', amount: 89, date: '2025-05-10', platform: '淘宝', note: '' },
+          { id: 'p10', product: '耳机', amount: 129, date: '2025-04-22', platform: '抖店', note: '' },
+          { id: 'p11', product: '音箱', amount: 299, date: '2025-04-01', platform: '淘宝', note: '' },
+          { id: 'p12', product: '手表', amount: 199, date: '2025-03-15', platform: '小红书', note: '' },
+        ], createdAt: '2025-02-01' },
+        { id: 'd4', name: '陈小明', wechat: '', phone: '', note: '需要跟进', manualTags: [], purchases: [
+          { id: 'p13', product: 'T恤男', amount: 39.9, date: '2025-01-10', platform: '抖店', note: '' },
+        ], createdAt: '2025-01-10' },
       ]
     };
     saveData(demo);
     activeCustomerId = null;
-    document.getElementById('detailPanel').innerHTML = '<div class="detail-empty">← 选择客户查看详情</div>';
+    document.getElementById('detailPanel').innerHTML = `<div class="detail-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>选择客户查看详情</span></div>`;
     render();
     showToast('已加载 4 条示例客户');
   }
